@@ -1,7 +1,10 @@
 package com.blackjack.domain.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Deck {
 
@@ -21,6 +24,7 @@ public class Deck {
     }
 
     private void shuffleDeck() {
-
+        Collections.shuffle(cards);
     }
+
 }
