@@ -15,11 +15,11 @@ public class Deck {
     }
 
     private void initializeDeck() {
-        createDeck(deckType);
+        createDeck();
         shuffleDeck();
     }
 
-    private void createDeck(DeckType deckType) {
+    private void createDeck() {
         for (int i = 0; i < deckType.getNumberOfDecks(); i++) {
             for (Suit suit : Suit.values()) {
                 for (Rank rank : Rank.values()) {
@@ -34,6 +34,9 @@ public class Deck {
     }
 
     private Card draw() {
+        if (cards.isEmpty()) {
+            throw new IllegalStateException("No cards remaining in deck");
+        }
         return cards.removeFirst();
     }
 
