@@ -40,7 +40,7 @@ public class Deck {
         return cards.removeFirst();
     }
 
-    private int remainingCards() {
+    public int remainingCards() {
         return cards.size();
     }
 
