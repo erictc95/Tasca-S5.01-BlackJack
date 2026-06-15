@@ -4,13 +4,13 @@ import java.util.UUID;
 
 public class Game {
 
-    UUID id;
-    Deck deck;
-    Hand playerHand;
-    Hand dealerHand;
-    GameStatus status;
-    GameMode gameMode;
-    DeckType deckType;
+    private UUID id;
+    private Deck deck;
+    private Hand playerHand;
+    private Hand dealerHand;
+    private GameStatus status;
+    private GameMode gameMode;
+    private DeckType deckType;
 
     public Game(GameMode gameMode, DeckType deckType) {
         this.id = UUID.randomUUID();
@@ -34,14 +34,14 @@ public class Game {
         dealerHand.addCard(deck.draw());
     }
 
-    private void playerHit(Hand hand) {
+    public void playerHit() {
         playerHand.addCard(deck.draw());
         if (playerHand.isBust()) {
             status = GameStatus.DEALER_WON;
         }
     }
 
-    private void stand() {
+    public void stand() {
         dealerTurn();
         determineWinner();
     }
@@ -62,7 +62,7 @@ public class Game {
             status = GameStatus.DEALER_WON;
         } else if (playerScore > dealerScore) {
             status = GameStatus.PLAYER_WON;
-        } else if (playerScore == dealerScore) {
+        } else {
             status = GameStatus.DRAW;
         }
     }
