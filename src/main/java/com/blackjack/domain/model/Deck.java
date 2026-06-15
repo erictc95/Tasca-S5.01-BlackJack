@@ -33,7 +33,7 @@ public class Deck {
         Collections.shuffle(cards);
     }
 
-    private Card draw() {
+    public Card draw() {
         if (cards.isEmpty()) {
             throw new IllegalStateException("No cards remaining in deck");
         }
