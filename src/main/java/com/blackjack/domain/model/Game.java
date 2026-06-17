@@ -23,6 +23,30 @@ public class Game {
         initializeGame();
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public Hand getPlayerHand() {
+        return playerHand;
+    }
+
+    public Hand getDealerHand() {
+        return dealerHand;
+    }
+
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public GameMode getGameMode() {
+        return gameMode;
+    }
+
+    public DeckType getDeckType() {
+        return deckType;
+    }
+
     private void initializeGame() {
         drawInitialHands();
     }
