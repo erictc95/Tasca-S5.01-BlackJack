@@ -1,9 +1,6 @@
 package com.blackjack;
 
-import com.blackjack.domain.model.DeckType;
-import com.blackjack.domain.model.Game;
-import com.blackjack.domain.model.GameMode;
-import com.blackjack.domain.model.GameStatus;
+import com.blackjack.domain.model.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
