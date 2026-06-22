@@ -1,15 +1,20 @@
 package com.blackjack.domain.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Setter
 @Getter
 public class Hand {
 
-    private final List<Card> cards = new ArrayList<>();
+    private List<Card> cards = new ArrayList<>();
+
+    public Hand() {
+    }
 
     public void addCard(Card card) {
         cards.add(card);
@@ -39,7 +44,7 @@ public class Hand {
         return calculateScore() > 21;
     }
 
-    public List<Card> getCards() {
+    /*public List<Card> getCards() {
         return Collections.unmodifiableList(cards);
-    }
+    }*/
 }

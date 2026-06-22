@@ -1,13 +1,21 @@
 package com.blackjack.domain.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Deck {
 
-    private final List<Card> cards = new ArrayList<>();
-    private final DeckType deckType;
+    @Getter
+    @Setter
+    private List<Card> cards = new ArrayList<>();
+    private DeckType deckType;
+
+    public Deck() {
+    }
 
     public Deck(DeckType deckType) {
         this.deckType = deckType;

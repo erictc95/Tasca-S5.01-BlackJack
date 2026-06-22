@@ -23,8 +23,22 @@ public class Game {
         initializeGame();
     }
 
+    public Game(UUID id, Deck deck, Hand playerHand, Hand dealerHand, GameStatus status, GameMode gameMode, DeckType deckType) {
+        this.id = id;
+        this.deck = deck;
+        this.playerHand = playerHand;
+        this.dealerHand = dealerHand;
+        this.status = status;
+        this.gameMode = gameMode;
+        this.deckType = deckType;
+    }
+
     public UUID getId() {
         return id;
+    }
+
+    public Deck getDeck() {
+        return deck;
     }
 
     public Hand getPlayerHand() {
