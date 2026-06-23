@@ -24,6 +24,18 @@ public class MongoGameRepository implements GameRepository {
         springRepository.save(gameDocument);
     }
 
+    @Override
+    public Game findById(UUID id) {
+        Optional<GameDocument> gameDocument = springRepository.findById(id);
+
+        return toDomain(gameDocument.orElseThrow(() -> new GameNotFoundException(id)));
+    }
+
+    @Override
+    public void delete(UUID id) {
+        springRepository.deleteById(id);
+    }
+
     private GameDocument toDocument(Game game) {
         return new GameDocument(
                 game.getId(),
@@ -34,13 +46,6 @@ public class MongoGameRepository implements GameRepository {
                 game.getGameMode(),
                 game.getDeckType()
         );
-    }
-
-    @Override
-    public Game findById(UUID id) {
-        Optional<GameDocument> gameDocument = springRepository.findById(id);
-
-        return toDomain(gameDocument.orElseThrow(() -> new GameNotFoundException(id)));
     }
 
     private Game toDomain(GameDocument gameDocument) {

@@ -1,9 +1,6 @@
 package com.blackjack.infrastructure.web.controller;
 
-import com.blackjack.application.usecases.CreateGameUseCase;
-import com.blackjack.application.usecases.GetGameUseCase;
-import com.blackjack.application.usecases.PlayerHitUseCase;
-import com.blackjack.application.usecases.StandUseCase;
+import com.blackjack.application.usecases.*;
 import com.blackjack.domain.model.Game;
 import com.blackjack.domain.ports.GameRepository;
 import com.blackjack.infrastructure.web.dto.CreateGameRequest;
@@ -15,19 +12,21 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/blackjack/")
+@RequestMapping("/blackjack")
 public class GameController {
     private final CreateGameUseCase createGameUseCase;
     private final GetGameUseCase getGameUseCase;
     private final PlayerHitUseCase playerHitUseCase;
     private final StandUseCase standUseCase;
+    private final DeleteGameUseCase deleteGameUseCase;
 
 
-    public GameController(CreateGameUseCase createGameUseCase, GetGameUseCase getGameUseCase, PlayerHitUseCase playerHitUseCase, StandUseCase standUseCase) {
+    public GameController(CreateGameUseCase createGameUseCase, GetGameUseCase getGameUseCase, PlayerHitUseCase playerHitUseCase, StandUseCase standUseCase, DeleteGameUseCase deleteGameUseCase) {
         this.createGameUseCase = createGameUseCase;
         this.getGameUseCase = getGameUseCase;
         this.playerHitUseCase = playerHitUseCase;
         this.standUseCase = standUseCase;
+        this.deleteGameUseCase = deleteGameUseCase;
     }
 
     @GetMapping("/{id}")
@@ -35,7 +34,7 @@ public class GameController {
         return getGameUseCase.getGame(id);
     }
 
-    @PostMapping("/")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UUID createGame(@Valid @RequestBody CreateGameRequest request) {
         return createGameUseCase.createGame(request.getGameMode(), request.getDeckType());
@@ -50,5 +49,11 @@ public class GameController {
     @PostMapping("/{id}/stand")
     public Game playerStand(@PathVariable UUID id) {
         return standUseCase.playerStand(id);
+    }
+
+    @PostMapping("/{id}/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteGame(@PathVariable UUID id) {
+        deleteGameUseCase.deleteGame(id);
     }
 }
