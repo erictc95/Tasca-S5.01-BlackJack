@@ -1,4 +1,4 @@
-package com.blackjack.infrastructure.persistance.mongo;
+package com.blackjack.infrastructure.persistence.mongo;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

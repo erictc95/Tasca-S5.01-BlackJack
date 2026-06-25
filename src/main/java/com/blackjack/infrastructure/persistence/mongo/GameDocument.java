@@ -1,4 +1,4 @@
-package com.blackjack.infrastructure.persistance.mongo;
+package com.blackjack.infrastructure.persistence.mongo;
 
 import com.blackjack.domain.model.*;
 import lombok.Getter;
