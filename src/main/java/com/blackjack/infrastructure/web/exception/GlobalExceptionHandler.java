@@ -20,4 +20,6 @@ public class GlobalExceptionHandler {
     public String handleGeneric(Exception ex) {
         return ex.getMessage();
     }
+
+
 }
