@@ -1,9 +1,11 @@
 package com.blackjack.application.usecases;
 
 import com.blackjack.domain.ports.GameRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class DeleteGameUseCaseImpl implements DeleteGameUseCase{
 
     private final GameRepository gameRepository;
