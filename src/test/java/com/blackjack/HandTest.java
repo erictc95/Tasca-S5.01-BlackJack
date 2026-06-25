@@ -50,4 +50,38 @@ public class HandTest {
         assertFalse(safeHand.isBust());
     }
 
+    @Test
+    void shouldCalculateAceAsEleven() {
+
+        Hand hand = new Hand();
+
+        hand.addCard(new Card(Rank.ACE, Suit.SPADES));
+        hand.addCard(new Card(Rank.SEVEN, Suit.HEARTS));
+
+        assertEquals(18, hand.calculateScore());
+    }
+
+    @Test
+    void shouldCountAceAsOneWhenNecessary() {
+
+        Hand hand = new Hand();
+
+        hand.addCard(new Card(Rank.ACE, Suit.SPADES));
+        hand.addCard(new Card(Rank.KING, Suit.HEARTS));
+        hand.addCard(new Card(Rank.FIVE, Suit.CLUBS));
+
+        assertEquals(16, hand.calculateScore());
+    }
+
+    @Test
+    void shouldCalculateTwoAcesCorrectly() {
+
+        Hand hand = new Hand();
+
+        hand.addCard(new Card(Rank.ACE, Suit.SPADES));
+        hand.addCard(new Card(Rank.ACE, Suit.HEARTS));
+
+        assertEquals(12, hand.calculateScore());
+    }
+
 }
