@@ -25,7 +25,7 @@ public class GetRankingUseCaseImpl implements GetRankingUseCase {
 
         double winRate = gamesPlayed == 0
                 ? 0
-                : (playerWins * 100.0) / gamesPlayed;
+                : Math.round((playerWins * 100.0 / gamesPlayed) * 100.0) / 100.0;
 
         return new RankingResponse(
                 gamesPlayed,
