@@ -1,358 +1,420 @@
-# Blackjack Backend
+# 🃏 Blackjack REST API
 
-## Project Overview
+## 📖 Project Overview
 
-This project consists of a REST API developed with Spring Boot that implements a single-player Blackjack game against a dealer.
+This project is a RESTful API developed in **Java 21** using **Spring Boot** that implements a complete single-player Blackjack game against the dealer.
 
-The main objective of the project is not only to build a functional game, but also to apply Domain-Oriented Design principles, maintain a rich domain model, and separate business rules from infrastructure concerns.
+The application was designed following **Domain-Driven Design (DDD)** principles and a **Rich Domain Model**, where the business rules are encapsulated inside the domain instead of controllers or services.
 
-The application uses two different persistence technologies:
+The architecture follows a **Hexagonal / Clean Architecture** approach, separating the project into three main layers:
 
-* MongoDB as the source of truth for the game state.
-* MySQL for derived data such as statistics, rankings, and game summaries.
+- **Domain** – Business rules and game logic.
+- **Application** – Use cases that coordinate application flow.
+- **Infrastructure** – REST API, persistence, database access and external technologies.
 
----
+The application uses **two different databases with different responsibilities**:
 
-## User Stories
+- **MongoDB** stores the complete game state and acts as the source of truth.
+- **MySQL** stores derived information such as game summaries and ranking statistics.
 
-### US-01 Create a New Blackjack Game
-
-**As a player**, I want to create a new Blackjack game, so that I can start playing against the dealer.
-
-#### Acceptance Criteria
-
-* A new game is created.
-* The deck is shuffled.
-* The player receives two cards.
-* The dealer receives two cards.
-* The game status is set to `IN_PROGRESS`.
-* The game state is stored in MongoDB.
+The project also includes automated tests, Swagger documentation, Docker support and domain events.
 
 ---
 
-### US-02 View Game State
+# 🚀 Technologies
 
-**As a player**, I want to view the current state of my game, so that I can see my cards and game progress.
-
-#### Acceptance Criteria
-
-* The player can retrieve a game by its ID.
-* The player's cards are visible.
-* The dealer's hidden card is not visible while the game is in progress.
-* The game status is displayed.
-
----
-
-### US-03 Request a Card (Hit)
-
-**As a player**, I want to request an additional card, so that I can try to get closer to 21.
-
-#### Acceptance Criteria
-
-* A new card is added to the player's hand.
-* The game state is updated and persisted.
-* If the player's score exceeds 21, the game ends immediately.
-* A result is calculated when the game finishes.
+- Java 21
+- Spring Boot 3.5
+- Spring Web
+- Spring Data MongoDB
+- Spring Data JPA
+- MongoDB
+- MySQL
+- Docker
+- Maven
+- Lombok
+- Swagger / OpenAPI
+- JUnit 5
+- Mockito
+- JaCoCo
 
 ---
 
-### US-04 Stand and Resolve the Game
+# ✨ Main Features
 
-**As a player**, I want to stand, so that the dealer can play and the final result can be determined.
-
-#### Acceptance Criteria
-
-* The player can no longer draw cards.
-* The dealer draws cards until reaching at least 17 points.
-* The final winner is determined.
-* The game status is updated.
-* A GameFinished event is published.
-
----
-
-### US-05 View Game Result
-
-**As a player**, I want to view the final result of a finished game, so that I know whether I won, lost, or drew.
-
-#### Acceptance Criteria
-
-* The final result is available.
-* The player's final score is displayed.
-* The dealer's final score is displayed.
-* All dealer cards become visible.
+- Create a new Blackjack game
+- Retrieve an existing game
+- Draw a new card (Hit)
+- Stand and let the dealer play
+- Automatic winner calculation
+- Persistent game state
+- Hidden dealer card while the game is in progress
+- Complete game history stored in MongoDB
+- Automatic game summary generation in MySQL
+- Ranking and statistics endpoint
+- Global exception handling
+- Swagger API documentation
+- Automated tests with more than **70% code coverage**
 
 ---
 
-### US-06 View Ranking and Statistics
+# 🏛️ Architecture
 
-**As a user**, I want to view aggregated game statistics, so that I can analyze game results.
+The project follows a layered architecture inspired by **Hexagonal Architecture**.
 
-#### Acceptance Criteria
+```text
+                 REST API
+                     │
+                     ▼
+           Infrastructure Layer
+                     │
+                     ▼
+          Application Layer
+              (Use Cases)
+                     │
+                     ▼
+              Domain Layer
+          (Business Rules)
+                     │
+                     ▼
+          Persistence Adapters
+        MongoDB          MySQL
+```
 
-* Statistics are retrieved from MySQL.
-* Total games played are displayed.
-* Total wins are displayed.
-* Total losses are displayed.
-* Total draws are displayed.
+Each layer has a single responsibility.
+
+### Domain
+
+Contains all Blackjack business rules.
+
+The domain has **no dependency on Spring Boot** or any persistence framework.
+
+### Application
+
+Coordinates the use cases.
+
+Examples:
+
+- Create Game
+- Get Game
+- Hit
+- Stand
+- Delete Game
+- Get Ranking
+
+Application services do not contain game rules.
+
+### Infrastructure
+
+Contains technical implementations:
+
+- REST Controllers
+- MongoDB repositories
+- MySQL repositories
+- Event publishers
+- DTOs
+- Mappers
+- Exception handlers
 
 ---
 
-### US-07 Persist Game State
+# 📂 Project Structure
 
-**As a player**, I want my game state to be persisted, so that I can continue the game from its exact previous state.
-
-#### Acceptance Criteria
-
-* The deck order is preserved.
-* All dealt cards are preserved.
-* The current game status is preserved.
-* The game can be reconstructed exactly as it was.
+```text
+src
+├── main
+│   ├── java
+│   │   └── com.blackjack
+│   │
+│   ├── application
+│   │   ├── events
+│   │   └── usecases
+│   │
+│   ├── domain
+│   │   ├── events
+│   │   ├── exceptions
+│   │   ├── model
+│   │   └── ports
+│   │
+│   └── infrastructure
+│       ├── events
+│       ├── persistence
+│       │   ├── mongo
+│       │   └── mysql
+│       └── web
+│           ├── controller
+│           ├── dto
+│           ├── exception
+│           └── mapper
+│
+└── test
+```
 
 ---
 
-## Blackjack Rules
+# 🎯 Design Goals
 
-The game follows a simplified Blackjack implementation:
+The project was designed to satisfy the following objectives:
 
-* One player against one dealer.
-* No betting system.
-* Both player and dealer receive two cards at the beginning.
-* The player can request cards while the game remains active.
-* If the player's score exceeds 21, the game ends immediately.
-* When the player stands, the dealer starts playing.
-* The dealer must draw cards until reaching at least 17 points.
-* The closest score to 21 wins.
-* If both scores are equal, the game ends in a draw.
+- Rich Domain Model
+- Clean Architecture
+- Separation of concerns
+- Testability
+- Persistent game state
+- Reproducible game flow
+- Hidden information protection
+- Easy extensibility
+- Independent persistence technologies
+
+# 🎮 Blackjack Rules
+
+The application implements a simplified version of Blackjack for a single player against the dealer.
+
+## Game Flow
+
+1. A new game is created.
+2. The deck is shuffled.
+3. The player receives two cards.
+4. The dealer receives two cards.
+5. Only one dealer card is visible while the game is in progress.
+6. The player can repeatedly choose:
+   - **Hit** (draw another card)
+   - **Stand** (finish the turn)
+7. If the player exceeds 21 points, the game immediately ends.
+8. When the player stands, the dealer automatically plays.
+9. The dealer must draw cards until reaching **17 or more points**.
+10. The winner is determined.
 
 ---
 
-## Domain Model
+## Winner Rules
 
-The application is centered around a rich domain model.
+### Player Wins
 
-### Main Aggregate
+The player wins when:
 
-`Game`
+- The dealer busts.
+- The player's score is higher than the dealer's score.
+- The player has Blackjack and the dealer does not.
 
-The Game aggregate is responsible for maintaining consistency and enforcing Blackjack rules.
+---
 
-### Core Domain Objects
+### Dealer Wins
 
-#### Game
+The dealer wins when:
+
+- The player busts.
+- The dealer's score is higher.
+
+---
+
+### Draw
+
+The game ends in a draw when both player and dealer finish with the same score.
+
+---
+
+## Dealer Hidden Information
+
+To prevent cheating, the API never exposes information that the player should not know.
+
+While the game is in progress:
+
+- The complete deck is never returned.
+- Remaining cards are never exposed.
+- Only one dealer card is visible.
+
+When the game finishes:
+
+- All dealer cards become visible.
+- Final scores are returned.
+- The game result is available.
+
+---
+
+# 🧩 Rich Domain Model
+
+The project follows a Rich Domain Model approach.
+
+Business rules are implemented inside domain entities instead of controllers or application services.
+
+## Main Aggregate
+
+### Game
+
+The `Game` aggregate is the central element of the application.
+
+It is responsible for:
+
+- Starting a new game.
+- Managing player actions.
+- Managing dealer actions.
+- Controlling game state.
+- Calculating the final result.
+- Preventing invalid actions.
+- Maintaining consistency.
+
+---
+
+## Domain Objects
+
+### Deck
 
 Responsibilities:
 
-* Manage game lifecycle.
-* Execute player actions.
-* Execute dealer actions.
-* Determine game results.
-* Maintain game consistency.
+- Generate cards.
+- Shuffle cards.
+- Draw cards.
+- Preserve remaining cards.
 
-#### Deck
+---
 
-Responsibilities:
-
-* Store remaining cards.
-* Shuffle cards.
-* Provide cards when requested.
-
-#### Hand
+### Hand
 
 Responsibilities:
 
-* Store cards belonging to a participant.
-* Calculate current score.
-* Detect bust situations.
+- Store player cards.
+- Store dealer cards.
+- Calculate scores.
+- Handle Ace value automatically.
+- Detect bust situations.
 
-#### Card
+---
 
-Responsibilities:
+### Card
 
-* Represent a playing card.
-* Store rank and suit information.
+Represents an immutable playing card.
 
-#### GameStatus
+Stores:
+
+- Rank
+- Suit
+- Value
+
+---
+
+### GameStatus
 
 Represents the current game state.
 
-Examples:
+Possible values:
 
-* IN_PROGRESS
-* PLAYER_WON
-* DEALER_WON
-* DRAW
-* PLAYER_BUST
-
-#### GameResult
-
-Represents the final outcome of a completed game.
+- IN_PROGRESS
+- PLAYER_WON
+- DEALER_WON
+- DRAW
+- PLAYER_BUST
 
 ---
 
-## Initial Domain Structure
+### DeckType
+
+Defines the number of decks used:
+
+- SINGLE_DECK
+- DOUBLE_DECK
+- EIGHT_DECKS
+
+---
+
+### GameMode
+
+Defines how dealer cards are displayed.
+
+Supported modes:
+
+- COVERED
+- UNCOVERED
+
+---
+
+# 💾 Persistence Strategy
+
+The application uses two databases with different responsibilities.
+
+## MongoDB
+
+MongoDB stores the complete game.
+
+It acts as the **source of truth**.
+
+Stored information includes:
+
+- Game ID
+- Complete deck
+- Remaining cards
+- Player hand
+- Dealer hand
+- Current status
+- Game mode
+- Deck type
+
+Because the full deck is persisted, the game can always continue exactly where it stopped.
+
+---
+
+## MySQL
+
+MySQL stores only **derived information**.
+
+It never stores the complete game.
+
+Examples:
+
+- Finished games
+- Final scores
+- Game summaries
+- Statistics
+- Ranking information
+
+This separation avoids duplicating responsibilities between databases.
+
+---
+
+# 📢 Domain Event
+
+The project implements a domain event:
+
+## GameFinishedEvent
+
+The event is published every time a game reaches a final state.
+
+It contains:
+
+- Game ID
+- Final result
+- Player score
+- Dealer score
+- Finish date
+
+The event is handled by an infrastructure publisher that stores a game summary inside MySQL.
+
+This keeps the domain independent from persistence technologies while allowing derived information to be generated automatically.
+
+---
+
+# 🔄 Game Flow
 
 ```text
-Game
-│
-├── Deck
-│
-├── PlayerHand
-│
-├── DealerHand
-│
-├── GameStatus
-│
-└── GameResult
-```
-
----
-
-## Persistence Strategy
-
-### MongoDB
-
-MongoDB stores the complete state of an active game.
-
-Examples:
-
-* Deck order.
-* Remaining cards.
-* Player hand.
-* Dealer hand.
-* Game status.
-
-MongoDB acts as the source of truth for the game.
-
-### MySQL
-
-MySQL stores derived information.
-
-Examples:
-
-* Game summaries.
-* Statistics.
-* Rankings.
-* Historical reports.
-
-MySQL is not used to reconstruct a game.
-
----
-
-## Domain Event
-
-### GameFinishedEvent
-
-The minimum required domain event.
-
-Triggered when a game reaches a final state.
-
-Possible uses:
-
-* Generate game summary.
-* Update statistics.
-* Update rankings.
-* Persist derived information into MySQL.
-
----
-
-## Planned Architecture
-
-```text
-src/main/java/com/blackjack
-
-domain
-│
-├── model
-├── events
-└── ports
-
-application
-│
-└── usecases
-
-infrastructure
-│
-├── persistence
-│   ├── mongo
-│   └── mysql
-│
-├── web
-│
-└── events
-```
-
-### Architectural Principles
-
-* Domain must not depend on Spring.
-* Business rules belong to the domain model.
-* Persistence must not dictate domain design.
-* Application layer coordinates use cases.
-* Infrastructure contains technical implementations.
-
----
-
-## Planned Endpoints
-
-### Create Game
-
-```http
-POST /games
-```
-
-### Get Game State
-
-```http
-GET /games/{id}
-```
-
-### Request Card
-
-```http
-POST /games/{id}/hit
-```
-
-### Stand
-
-```http
-POST /games/{id}/stand
-```
-
-### Get Statistics
-
-```http
+Create Game
+      │
+      ▼
+MongoDB
+(Store complete game)
+      │
+      ▼
+Player Hit / Stand
+      │
+      ▼
+Game Finished
+      │
+      ▼
+GameFinishedEvent
+      │
+      ▼
+MySQL
+(Store game summary)
+      │
+      ▼
 GET /ranking
 ```
-
----
-
-## Testing Strategy
-
-### Unit Tests
-
-Focus on domain behavior:
-
-* Score calculation.
-* Bust detection.
-* Dealer logic.
-* Winner determination.
-* Game transitions.
-
-### Integration Tests
-
-Focus on API behavior:
-
-* Create game.
-* Hit.
-* Stand.
-* Retrieve game state.
-* Retrieve ranking.
-
-### Coverage Goal
-
-Minimum test coverage target:
-
-```text
-60%+
-```
-
-while prioritizing meaningful tests over coverage numbers alone.
