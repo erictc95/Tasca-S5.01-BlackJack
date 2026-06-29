@@ -419,6 +419,432 @@ MySQL
 GET /ranking
 ```
 
-## 👤 Author
+# ⚙️ Installation
+
+## Prerequisites
+
+Before running the project, make sure you have installed:
+
+- Java 21
+- Maven 3.9+
+- Docker Desktop
+- MongoDB Docker image
+- MySQL Docker image
+- Git
+
+---
+
+# 📥 Clone the Repository
+
+```bash
+git clone https://github.com/erictc95/blackjack-api.git
+cd blackjack-api
+```
+
+---
+
+# 🐳 Docker Containers
+
+The application requires two databases.
+
+## MongoDB
+
+Create the MongoDB container:
+
+```bash
+docker run -d \
+--name blackjack-mongo \
+-p 27017:27017 \
+mongo:latest
+```
+
+Or start it if it already exists:
+
+```bash
+docker start blackjack-mongo
+```
+
+---
+
+## MySQL
+
+Create the MySQL container:
+
+```bash
+docker run -d \
+--name blackjack-mysql \
+-e MYSQL_ROOT_PASSWORD=root \
+-e MYSQL_DATABASE=blackjack \
+-p 3312:3306 \
+mysql:8.4
+```
+
+Or start it:
+
+```bash
+docker start blackjack-mysql
+```
+
+---
+
+# ▶️ Running the Application
+
+Compile the project:
+
+```bash
+mvn clean install
+```
+
+Run the application:
+
+```bash
+mvn spring-boot:run
+```
+
+Or execute it directly from IntelliJ IDEA by running:
+
+```
+BlackjackApiApplication
+```
+
+---
+
+# 📖 Swagger Documentation
+
+After starting the application, Swagger UI is available at:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+The OpenAPI specification is available at:
+
+```
+http://localhost:8080/v3/api-docs
+```
+
+---
+
+# 🌐 REST API
+
+## Create Game
+
+```http
+POST /blackjack
+```
+
+Creates a new Blackjack game.
+
+### Request
+
+```json
+{
+  "gameMode": "COVERED",
+  "deckType": "SINGLE_DECK"
+}
+```
+
+### Response
+
+```text
+201 Created
+
+UUID
+```
+
+---
+
+## Get Game
+
+```http
+GET /blackjack/{id}
+```
+
+Returns the current game state.
+
+---
+
+## Hit
+
+```http
+POST /blackjack/{id}/hit
+```
+
+Draws one additional card for the player.
+
+Returns the updated game.
+
+---
+
+## Stand
+
+```http
+POST /blackjack/{id}/stand
+```
+
+Ends the player's turn.
+
+The dealer automatically plays according to Blackjack rules.
+
+Returns the final game state.
+
+---
+
+## Delete Game
+
+```http
+DELETE /blackjack/{id}
+```
+
+Deletes a stored game.
+
+Response:
+
+```text
+204 No Content
+```
+
+---
+
+## Ranking
+
+```http
+GET /blackjack/ranking
+```
+
+Returns aggregated statistics stored in MySQL.
+
+Example response:
+
+```json
+{
+  "gamesPlayed": 15,
+  "playerWins": 9,
+  "dealerWins": 4,
+  "draws": 2,
+  "winRate": 60.0
+}
+```
+
+---
+
+# 🗄 Database Responsibilities
+
+## MongoDB
+
+Stores:
+
+- Complete deck
+- Player hand
+- Dealer hand
+- Current game state
+- Remaining cards
+
+MongoDB is the application's **source of truth**.
+
+---
+
+## MySQL
+
+Stores only derived information:
+
+- Finished game summaries
+- Statistics
+- Ranking information
+
+This allows fast statistical queries without loading every game from MongoDB.
+
+---
+
+# 🔒 Hidden Information Protection
+
+The API prevents clients from accessing hidden game information.
+
+While a game is active:
+
+- Remaining deck cards are never returned.
+- Dealer hidden cards are not exposed.
+- Internal game information remains protected.
+
+Once the game finishes:
+
+- All dealer cards become visible.
+- Final scores are returned.
+- The winner is revealed.
+
+This prevents cheating and ensures a realistic Blackjack experience.
+
+# 🧪 Testing
+
+The project includes both **unit tests** and **integration tests** to validate the main application behavior.
+
+## Unit Tests
+
+Unit tests focus on the business logic contained in the domain model and application layer.
+
+Covered components include:
+
+- `Game`
+- `Deck`
+- `Hand`
+- `CreateGameUseCase`
+- `PlayerHitUseCase`
+- `StandUseCase`
+
+The tests verify scenarios such as:
+
+- Initial game creation
+- Card drawing
+- Score calculation
+- Ace value calculation
+- Bust detection
+- Dealer automatic behavior
+- Winner determination
+- Game state transitions
+
+---
+
+## Integration Tests
+
+Integration tests validate the REST API using Spring Boot testing tools.
+
+Covered endpoints include:
+
+- Create Game
+- Get Game
+- Hit
+- Stand
+- Delete Game
+
+The controller layer is tested independently from the infrastructure by mocking the application use cases.
+
+---
+
+# 📊 Code Coverage
+
+Code coverage is measured using **JaCoCo**.
+
+Current project coverage is above the minimum requirement defined for the assignment.
+
+Coverage includes:
+
+- Domain Model
+- Application Use Cases
+- REST Controllers
+- Domain Events
+
+The objective of the tests is not only to increase coverage but also to verify the most critical business scenarios.
+
+---
+
+# 🏗 Design Decisions
+
+Several architectural decisions were made during the implementation of the project.
+
+## Rich Domain Model
+
+Business rules are implemented inside the domain entities instead of controllers or services.
+
+This keeps the domain cohesive and avoids an anemic model.
+
+---
+
+## MongoDB as Source of Truth
+
+MongoDB stores the complete game state.
+
+This includes:
+
+- Remaining deck
+- Player hand
+- Dealer hand
+- Game status
+- Deck configuration
+
+Persisting the entire game guarantees that the game can always continue exactly from the previous request.
+
+---
+
+## MySQL for Derived Information
+
+MySQL is intentionally not used to reconstruct games.
+
+Instead, it stores:
+
+- Game summaries
+- Statistics
+- Ranking information
+
+This separation follows the principle that different databases can have different responsibilities.
+
+---
+
+## Domain Events
+
+When a game finishes, a `GameFinishedEvent` is published.
+
+The infrastructure layer reacts to this event by creating a summary inside MySQL.
+
+This keeps the domain independent from persistence technologies while allowing additional processing after a game ends.
+
+---
+
+## Hidden Information
+
+The API never exposes information that would allow players to cheat.
+
+While a game is active:
+
+- Hidden dealer cards remain hidden.
+- Remaining deck cards are never returned.
+- Internal game information is protected.
+
+---
+
+# 🚀 Future Improvements
+
+Possible future enhancements include:
+
+- Multiplayer support.
+- Authentication and user accounts.
+- Betting system.
+- Multiple Blackjack variants.
+- Reactive implementation using Spring WebFlux.
+- Real-time game updates using WebSockets.
+- Advanced player statistics.
+- Leaderboards by authenticated player.
+- Pagination for historical games.
+- CI/CD pipeline integration.
+
+---
+
+# 🙏 Acknowledgements
+
+This project was developed for educational purposes to practice:
+
+- Rich Domain Modeling
+- Clean Architecture
+- Domain-Driven Design concepts
+- REST API development
+- Spring Boot
+- MongoDB
+- MySQL
+- Automated testing
+- Software architecture principles
+
+---
+
+# 📄 License
+
+This project was developed for academic purposes.
+
+Feel free to use it as a learning resource.
+
+
+## 👨‍💻 Author
 
 Eric Tarres Cabrisas - GitHub --> erictc95
+
+Java Backend Developer Student
+
+Project developed as part of the IT Academy Backend Java specialization.
