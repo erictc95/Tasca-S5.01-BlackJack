@@ -418,3 +418,7 @@ MySQL
       ▼
 GET /ranking
 ```
+
+## 👤 Author
+
+Eric Tarres Cabrisas - GitHub --> erictc95
